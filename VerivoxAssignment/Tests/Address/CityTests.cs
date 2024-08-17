@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text.RegularExpressions;
 using RestSharp;
 using VerivoxAssignment.Models;
 
@@ -21,51 +22,44 @@ namespace VerivoxAssignment.Tests.Address
             Assert.Empty(response.Content);
         }
 
-        [Fact]
-        public async void GetCities_ShouldReturnBerlinOnly_ForZipcode10409()
+        [Theory]
+        [InlineData("10409", new string[] { "Berlin" })]
+        [InlineData("77716", new string[] { "Fischerbach", "Haslach", "Hofstetten" })]
+        public async void GetCities_ShouldReturnExpectedCities_ForValidZipcode(string zipcode, string[] expectedCities)
         {
             // Arrange
-            var zipcode = 10409;
             var request = new RestRequest($"/{zipcode}");
 
             // Act
             var response = await _client.ExecuteGetAsync(request);
 
             // Assert
-            var responseModel = System.Text.Json.JsonSerializer.Deserialize<CitiesResponseModel>(response.Content);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var responseModel = System.Text.Json.JsonSerializer.Deserialize<CitiesResponseModel>(response.Content);
 
-            var cities = responseModel.Cities;
             Assert.NotNull(responseModel?.Cities);
             Assert.NotEmpty(responseModel.Cities);
 
-            Assert.Single(cities);
-            Assert.Equal("Berlin", cities[0]);
+            var cities = responseModel.Cities;
+
+            Assert.True(cities.Length == expectedCities.Length);
+            foreach (var expectedCity in expectedCities)
+            {
+                Assert.Contains(expectedCity, cities);
+            }
         }
 
-        [Fact]
-        public async void GetCities_ShouldReturn3Cities_ForZipcode77716()
+        [Theory(Skip = "Extra test to validate german zipcodes")]
+        [InlineData("00123", false)]
+        [InlineData("1409", false)]
+        [InlineData("104090", false)]
+        [InlineData("10409", true)] //Berlin
+        [InlineData("01067", true)] //Dresden
+        public void ZipCode_ShouldAlwaysBeInValidRange_ForAllGermanZipCodes(string zipcode, bool isValid)
         {
-            // Arrange
-            var zipcode = 77716;
-            var request = new RestRequest($"/{zipcode}");
-
-            // Act
-            var response = await _client.ExecuteGetAsync(request);
-
-            var responseModel = System.Text.Json.JsonSerializer.Deserialize<CitiesResponseModel>(response.Content);
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-
-            Assert.NotNull(responseModel?.Cities);
-            Assert.NotEmpty(responseModel.Cities);
-
-            var cities = responseModel.Cities;
-
-            // Assert
-            Assert.True(cities.Length == 3);
-            Assert.Contains("Fischerbach", cities);
-            Assert.Contains("Haslach", cities);
-            Assert.Contains("Hofstetten", cities);
+            var validationResult = new Regex(@"^(?!00)\d{5}$").IsMatch(zipcode);
+            if (validationResult != isValid)
+                Assert.Fail("Valid german zipcodes are 01000-99999.");
         }
     }
 }
