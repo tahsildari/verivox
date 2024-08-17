@@ -1,6 +1,7 @@
 using System.Net;
 using RestSharp;
 using VerivoxAssignment.Models;
+using FluentAssertions;
 
 namespace VerivoxAssignment.Tests.Street
 {
@@ -20,19 +21,14 @@ namespace VerivoxAssignment.Tests.Street
             var response = await _client.ExecuteGetAsync(request);
 
             // Assert
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+
             var responseModel = System.Text.Json.JsonSerializer.Deserialize<StreetsResponseModel>(response.Content);
 
-            Assert.NotNull(responseModel?.Streets);
-            Assert.NotEmpty(responseModel.Streets);
-
-            var streets = responseModel.Streets;
-
-            Assert.True(streets.Length == streetsCount);
-            foreach (var expectedStreet in sampleStreets)
-            {
-                Assert.Contains(expectedStreet, streets);
-            }
+            responseModel.Should().NotBeNull();
+            responseModel.Streets.Should().NotBeEmpty()
+                .And.HaveCount(streetsCount)
+                .And.Contain(sampleStreets);
         }
 
         [Theory]
@@ -46,7 +42,7 @@ namespace VerivoxAssignment.Tests.Street
             var response = await _client.ExecuteGetAsync(request);
 
             // Assert
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
     }
 }
