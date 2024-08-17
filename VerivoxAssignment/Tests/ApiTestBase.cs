@@ -1,4 +1,3 @@
-using System.Net.NetworkInformation;
 using Microsoft.Extensions.Configuration;
 using RestSharp;
 
