@@ -68,7 +68,7 @@ Some test cases are Skipped. If you wish to run them, don't forget to remove the
 
 Two API Endpoints are used in this project.
 
-1. [Cities endpoint](https://service.verivox.de/geo/latestv2/cities/)
+1. [Cities endpoint](https://service.verivox.de/geo/latestv2/cities/10409)
    
 ![image](https://github.com/user-attachments/assets/fbe85bc5-98a9-40ea-8cd3-74f8ebe34349)
 
