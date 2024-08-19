@@ -10,6 +10,7 @@ This project is a lightweight C# test suite designed to automatically test the A
 - [Getting Started](#getting-started)
 - [Running the Tests](#running-the-tests)
 - [API Endpoints](#api-endpoints)
+- [Known issues](#known-issues)
 
 ## Overview
 
@@ -75,3 +76,17 @@ Two API Endpoints are used in this project.
 2. [Streets endpoint](https://service.verivox.de/geo/latestv2/cities/10409/Berlin/streets)
 
 ![image](https://github.com/user-attachments/assets/b461a684-93eb-4e6e-aa31-e781ff3246fd)
+
+## Known issues
+
+### Config problems: ###
+
+In case the appsettings.json is not correctly configured, for example when the ApiUrl is empty or null, all of the tests will fail with the same error message. This dependency can be resolved by adding a Program.cs file to the project and handling the exception once and foremost. This way, we either have the correct configuration and will be able to run the tests, or have the bad configuration and will stop right there in the very beginning instead of seeing tons of errors.
+
+I did not address this issue to keep the code lightweight.
+
+### Response-time tests: ###
+
+Currently, response-time tests are on the Street and City test classes. Each of the tests check the relevant endpoint. In a real world situation, we'd better gather such tests in one class, for example ResponseTimeTests.cs. 
+
+Since there weren't many classes there, I did not do so to keep the structure as clean as possible for now.
