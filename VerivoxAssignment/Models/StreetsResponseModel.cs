@@ -1,7 +1,3 @@
-namespace VerivoxAssignment.Models
-{
-    public class StreetsResponseModel
-    {
-        public string[] Streets { get; set; }
-    }
-}
+namespace VerivoxAssignment.Models;
+
+public record StreetsResponseModel(string[] Streets);
